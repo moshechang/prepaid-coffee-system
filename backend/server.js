@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const sql = require('mssql');
 const cors = require('cors');
@@ -7,10 +8,10 @@ app.use(cors());
 app.use(express.json());
 
 const dbConfig = {
-  server: 'localhost\\SQLEXPRESS',
-  database: 'Coffee',
-  user: 'coffee_user',
-  password: '123456',
+  server: process.env.DB_SERVER,
+  database: process.env.DB_DATABASE,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
   options: {
     trustServerCertificate: true
   }
