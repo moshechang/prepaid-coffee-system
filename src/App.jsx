@@ -159,8 +159,6 @@ function App() {
         查詢
       </button>
 
-      {message && <p>{message}</p>}
-
       {customer && (
         <div>
           <h2>客人資訊</h2>
@@ -189,7 +187,7 @@ function App() {
           </select>
 
           <input
-            placeholder="購買杯數"
+            placeholder="購買杯數" type="number" min="1"
             value={purchaseAmount}
             onChange={(e) => setPurchaseAmount(e.target.value)}
           />
@@ -220,6 +218,7 @@ function App() {
           )}
         </div>
       )}
+    {message && <p>{message}</p>}
     </div>
   );
 }

@@ -17,13 +17,14 @@ const dbConfig = {
   }
 };
 
-//查所有客人
+//查所有客戶資料
 app.get('/customers', async (req, res) => {
   try {
     const pool = await sql.connect(dbConfig);
     const result = await pool.request().query(`
-      SELECT customer_id, customer_name, customer_phone
-      FROM customers
+      SELECT *
+      FROM customers c
+      ORDER BY c.customer_id ASC
     `);
 
     res.json(result.recordset);
@@ -31,13 +32,12 @@ app.get('/customers', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ 
-      error: '資料庫查詢失敗',
-      detail: err.message 
+      error: err.message
     });
   }
 });
 
-//查單一客人
+//查單一客戶資料
 app.get('/customers/:id', async (req, res) => {
 
   const { id } = req.params;
@@ -45,7 +45,6 @@ app.get('/customers/:id', async (req, res) => {
   try {
 
     const pool = await sql.connect(dbConfig);
-
     const result = await pool.request()
       .input('id', sql.Int, id)
       .query(`
@@ -66,7 +65,7 @@ app.get('/customers/:id', async (req, res) => {
 
 });
 
-//查單一寄杯
+//查單一客戶下所有寄杯
 app.get('/balances/:customerId', async (req, res) => {
   const { customerId } = req.params;
 
@@ -88,7 +87,8 @@ app.get('/balances/:customerId', async (req, res) => {
         JOIN items i
           ON b.item_id = i.item_id
         WHERE b.customer_id = @customerId
-        ORDER BY b.balance_id
+        AND b.remaining_cups > 0
+        ORDER BY b.item_id ASC
       `);
 
     res.json(result.recordset);
@@ -102,7 +102,7 @@ app.get('/balances/:customerId', async (req, res) => {
   }
 });
 
-//查所有寄杯餘額
+//查所有寄杯資料
 app.get('/balances', async (req, res) => {
   try {
     const pool = await sql.connect(dbConfig);
@@ -118,7 +118,7 @@ app.get('/balances', async (req, res) => {
         ON b.customer_id = c.customer_id
       JOIN items i
         ON b.item_id = i.item_id
-      ORDER BY b.balance_id
+      ORDER BY b.balance_id ASC
     `);
 
     res.json(result.recordset);
@@ -126,7 +126,7 @@ app.get('/balances', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({
-      error: '資料庫查詢失敗'
+      error: err.message
     });
   }
 });
@@ -136,7 +136,9 @@ app.get('/items', async (req, res) => {
   try {
     const pool = await sql.connect(dbConfig);
     const result = await pool.request().query(`
-      SELECT item_id, item_name
+      SELECT 
+        item_id,
+        item_name
       FROM items
       ORDER BY item_id ASC
     `);
@@ -146,8 +148,7 @@ app.get('/items', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ 
-      error: '資料庫查詢失敗',
-      detail: err.message 
+      error: err.message 
     });
   }
 });
@@ -157,9 +158,9 @@ app.get('/transactions', async (req, res) => {
   try {
     const pool = await sql.connect(dbConfig);
     const result = await pool.request().query(`
-      SELECT transaction_id, customer_id,
-      item_id, amount, transaction_type, time_record
+      SELECT *
       FROM transactions
+      ORDER BY transaction_id ASC
     `);
 
     res.json(result.recordset);
@@ -167,8 +168,7 @@ app.get('/transactions', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ 
-      error: '資料庫查詢失敗',
-      detail: err.message 
+      error: err.message 
     });
   }
 });
@@ -177,6 +177,10 @@ app.get('/transactions', async (req, res) => {
 app.post('/purchase', async (req, res) => {
 
   const { customer_id, item_id, amount } = req.body;
+
+  if (amount<0) {
+  throw new Error('數量不能小於0');
+  }
 
   try {
 
@@ -195,7 +199,6 @@ app.post('/purchase', async (req, res) => {
 
     // 已存在 → UPDATE
     if (checkResult.recordset.length > 0) {
-
       await pool.request()
         .input('customer_id', sql.Int, customer_id)
         .input('item_id', sql.Int, item_id)
@@ -206,12 +209,10 @@ app.post('/purchase', async (req, res) => {
           WHERE customer_id = @customer_id
             AND item_id = @item_id
         `);
-
     }
 
     // 不存在 → INSERT
     else {
-
       await pool.request()
         .input('customer_id', sql.Int, customer_id)
         .input('item_id', sql.Int, item_id)
@@ -228,7 +229,6 @@ app.post('/purchase', async (req, res) => {
             @amount
           )
         `);
-
     }
 
     // 新增交易紀錄
@@ -258,18 +258,15 @@ app.post('/purchase', async (req, res) => {
     });
 
   } catch (err) {
-
     console.error(err);
-
     res.status(400).json({
-      error: '購買失敗'
+      error: '購買失敗',
+      detail: err.message
     });
-
   }
-
 });
 
-//兌換寄杯1杯
+//兌換寄杯
 app.post('/redeem', async (req, res) => {
   const { customer_id, item_id } = req.body;
 
@@ -281,8 +278,8 @@ app.post('/redeem', async (req, res) => {
     await transaction.begin();
     const request1 = new sql.Request(transaction);
 
-    // 檢查 balance 是否存在且還有餘杯
-    const updateResult = await request1
+    // 檢查還有餘杯則扣除額度
+    await request1
       .input('customer_id', sql.Int, customer_id)
       .input('item_id', sql.Int, item_id)
       .query(`
@@ -292,10 +289,6 @@ app.post('/redeem', async (req, res) => {
           AND item_id = @item_id
           AND remaining_cups >= 1
       `);
-
-     if (updateResult.rowsAffected[0] === 0) {
-      throw new Error('沒有寄杯資料或杯數不足');
-    }
 
     // 新增交易紀錄
     const request2 = new sql.Request(transaction);
@@ -333,9 +326,7 @@ app.post('/redeem', async (req, res) => {
     console.error(err);
 
     res.status(400).json({
-      error: '兌換失敗',
-      detail: err.message,
-      code: err.code
+      error: err.message
     });
 
   }
