@@ -182,3 +182,23 @@
     border-right-color: var(--border);
   }
 }
+
+.item-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.item-grid button {
+  padding: 18px;
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  background: rgb(19, 81, 174);
+  cursor: pointer;
+}
+
+.item-grid button.selected {
+  background: #9fe89f;
+  color: rgb(45, 38, 184);
+  border: 2px solid #000;
+}

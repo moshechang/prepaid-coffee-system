@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import './App.css';
 
 function App() {
   const [customerName, setCustomerName] = useState('');
@@ -10,6 +11,7 @@ function App() {
   const [purchaseAmount, setPurchaseAmount] = useState('1');
   const [message, setMessage] = useState('');
   const [items, setItems] = useState([]);
+  const [selectedItemId, setSelectedItemId] = useState('');
 
   const showMessage = (text) => {
     setMessage(text);
@@ -52,9 +54,11 @@ function App() {
     if (res.ok) {
       setCustomerName('');
       setCustomerPhone('');
-      showMessage('新增客人成功');
+      await findCustomer('latest');
+      setCustomerId(data[0].customer_id);
+      showMessage('新增客戶成功');
     } else {
-      showMessage('新增客人失敗');
+      showMessage('新增客戶失敗');
     }
   };
 
@@ -64,8 +68,10 @@ function App() {
     setBalances(Array.isArray(data) ? data : []);
   };
 
-  const findCustomer = async () => {
-    const id = customerId.trim();
+  const findCustomer = async (targetId) => {
+    const id = typeof targetId === 'string' || typeof targetId === 'number'
+      ? String(targetId).trim()
+      : customerId.trim();
 
     setCustomer(null);
     setBalances([]);
@@ -81,7 +87,7 @@ function App() {
     }
 
     setCustomer(data[0]);
-    await loadBalances(id);
+    await loadBalances(data[0].customer_id);
   };
 
   const purchase = async () => {
@@ -92,7 +98,7 @@ function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         customer_id: customer.customer_id,
-        item_id: Number(itemId),
+        item_id: selectedItemId,
         amount: Number(purchaseAmount)
       })
     });
@@ -133,7 +139,7 @@ function App() {
 
       <input
         placeholder="名字"
-        value={customerName}
+        value={customerName} class="form-control"
         onChange={(e) => setCustomerName(e.target.value)}
       />
 
@@ -162,29 +168,23 @@ function App() {
       {customer && (
         <div>
           <h2>客人資訊</h2>
-
+          <div>編號：{customer.customer_id}</div>
           <div>名字：{customer.customer_name}</div>
           <div>手機：{customer.customer_phone ?? '無手機'}</div>
 
           <h2>購買寄杯</h2>
 
-          <select
-            value={itemId}
-            onChange={(e) => setItemId(e.target.value)}
-          >
-
+          <div className="item-grid">
             {items.map((item) => (
-
-              <option
+              <button
                 key={item.item_id}
-                value={item.item_id}
+                onClick={() => setSelectedItemId(item.item_id)}
+                className={selectedItemId === item.item_id ? 'selected' : ''}
               >
                 {item.item_name}
-              </option>
-
+              </button>
             ))}
-
-          </select>
+          </div>
 
           <input
             placeholder="購買杯數" type="number" min="1"
@@ -193,7 +193,15 @@ function App() {
           />
 
           <button type="button" onClick={purchase}>
-            購買 {purchaseAmount} 杯
+            購買
+          </button>
+
+          <button type="button" onClick={() => {setPurchaseAmount(10)}}>
+            10 杯
+          </button>
+
+          <button type="button" onClick={() => {setPurchaseAmount(20)}}>
+            20 杯
           </button>
 
           <h2>寄杯餘額</h2>
@@ -218,7 +226,7 @@ function App() {
           )}
         </div>
       )}
-    {message && <p>{message}</p>}
+      {message && <p>{message}</p>}
     </div>
   );
 }

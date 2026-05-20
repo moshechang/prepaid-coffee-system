@@ -45,6 +45,18 @@ app.get('/customers/:id', async (req, res) => {
   try {
 
     const pool = await sql.connect(dbConfig);
+
+    if (id === 'latest') {
+
+    const result = await pool.request().query(`
+      SELECT TOP 1 *
+      FROM customers
+      ORDER BY customer_id DESC
+    `);
+    res.json(result.recordset);
+    } 
+
+    else{
     const result = await pool.request()
       .input('id', sql.Int, id)
       .query(`
@@ -52,8 +64,8 @@ app.get('/customers/:id', async (req, res) => {
         FROM customers
         WHERE customer_id = @id
       `);
-
     res.json(result.recordset);
+    }
 
   } catch (err) {
 
@@ -362,7 +374,7 @@ app.post('/customers', async (req, res) => {
         )
       `);
 
-    res.json({ message: '新增客人成功' });
+    res.json({ message: '新增客人成功'});
 
   } catch (err) {
     res.status(400).json({
