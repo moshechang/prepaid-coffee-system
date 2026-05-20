@@ -185,7 +185,7 @@
 
 .item-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(8, 1fr);
   gap: 10px;
 }
 
@@ -201,4 +201,10 @@
   background: #9fe89f;
   color: rgb(45, 38, 184);
   border: 2px solid #000;
+}
+
+.customer-info {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
 }

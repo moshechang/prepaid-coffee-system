@@ -168,9 +168,11 @@ function App() {
       {customer && (
         <div>
           <h2>客人資訊</h2>
-          <div>編號：{customer.customer_id}</div>
-          <div>名字：{customer.customer_name}</div>
-          <div>手機：{customer.customer_phone ?? '無手機'}</div>
+          <div className="customer-info">
+            <div>編號：{customer.customer_id}</div>
+            <div>名字：{customer.customer_name}</div>
+            <div>手機：{customer.customer_phone ?? '無手機'}</div>
+          </div>
 
           <h2>購買寄杯</h2>
 
