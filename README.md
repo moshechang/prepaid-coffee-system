@@ -63,4 +63,4 @@ nodemon server.js
 
 ## Screenshots
 
-(Add screenshots here)
+![image](./screenshot.png)
