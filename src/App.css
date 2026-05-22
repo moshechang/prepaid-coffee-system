@@ -4,7 +4,7 @@ html {
 
 body {
   margin: 0;
-  background: #48517e;
+  background: rgb(0, 0, 0);
   color: white;
 }
 
@@ -29,11 +29,13 @@ textarea {
 h1 {
   font-size: 36px;
   margin: 24px 0;
+  color: white;
 }
 
 h2 {
   font-size: 28px;
   margin: 20px 0 12px;
+  color: white;
 }
 
 input {
