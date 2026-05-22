@@ -4,7 +4,7 @@ html {
 
 body {
   margin: 0;
-  background: #111217;
+  background: #48517e;
   color: white;
 }
 
@@ -45,7 +45,7 @@ input {
   border-radius: 10px;
   border: 2px solid #555;
 
-  background: #6f6d6d;
+  background: #000;
   color: white;
   box-sizing: border-box;
 }
