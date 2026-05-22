@@ -27,6 +27,10 @@ function App() {
   };
 
   useEffect(() => {
+  fetch(`${API}/ping`);
+  }, []);
+
+  useEffect(() => {
     loadItems();
   }, []);
 

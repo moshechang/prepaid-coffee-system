@@ -29,6 +29,10 @@ const pool = new Pool({
   }
 });
 
+app.get('/ping', (req, res) => {
+  res.send('ok');
+});
+
 //查所有客戶資料
 app.get('/customers', async (req, res) => {
   try {
