@@ -12,6 +12,7 @@ function App() {
   const [message, setMessage] = useState('');
   const [items, setItems] = useState([]);
   const [selectedItemId, setSelectedItemId] = useState('');
+  const API = "https://prepaid-coffee-system.onrender.com";
 
   const showMessage = (text) => {
     setMessage(text);
@@ -21,7 +22,7 @@ function App() {
   const loadItems = async () => {
 
     const res = await fetch(
-      'http://localhost:3000/items'
+      `${API}/items`
     );
 
     const data = await res.json();
@@ -42,7 +43,7 @@ function App() {
       return;
     }
 
-    const res = await fetch('http://localhost:3000/customers', {
+    const res = await fetch(`${API}/customers`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -63,7 +64,7 @@ function App() {
   };
 
   const loadBalances = async (id) => {
-    const res = await fetch(`http://localhost:3000/balances/${id}`);
+    const res = await fetch(`${API}/balances/${id}`);
     const data = await res.json();
     setBalances(Array.isArray(data) ? data : []);
   };
@@ -78,7 +79,7 @@ function App() {
 
     if (!id) return;
 
-    const res = await fetch(`http://localhost:3000/customers/${id}`);
+    const res = await fetch(`${API}/customers/${id}`);
     const data = await res.json();
 
     if (!Array.isArray(data) || data.length === 0) {
@@ -93,7 +94,7 @@ function App() {
   const purchase = async () => {
     if (!customer) return;
 
-    const res = await fetch('http://localhost:3000/purchase', {
+    const res = await fetch(`${API}/purchase`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -114,7 +115,7 @@ function App() {
   const redeem = async (item_id) => {
     if (!customer) return;
 
-    const res = await fetch('http://localhost:3000/redeem', {
+    const res = await fetch(`${API}/redeem`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
