@@ -168,7 +168,7 @@ function App() {
         加入新的客人
       </button>
 
-      <h2>查詢客人</h2>
+      <h2>查詢客人（測試可輸入1）</h2>
 
       <input
         className="input"
