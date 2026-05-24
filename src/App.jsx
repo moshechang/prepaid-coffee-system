@@ -57,8 +57,6 @@ function App() {
       setCustomerName('');
       setCustomerPhone('');
 
-      setCustomer(data);
-
       setCustomerId(data.customer_id);
 
       await findCustomer(data.customer_id);

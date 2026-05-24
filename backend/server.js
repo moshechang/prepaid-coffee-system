@@ -68,7 +68,7 @@ app.get('/customers/:id', async (req, res) => {
         FROM customers
         WHERE customer_id = $1
       `,[id]);
-      
+
     res.json(result.rows);
     
   } catch (err) {
@@ -372,7 +372,8 @@ app.post('/customers', async (req, res) => {
         RETURNING *
       `,[customer_name, customer_phone || null]);
 
-    res.json({ message: '新增客人成功'});
+      res.json(result.rows[0]);
+      res.json({ message: '新增客人成功'});
 
   } catch (err) {
     res.status(400).json({
