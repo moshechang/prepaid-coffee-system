@@ -372,7 +372,7 @@ app.post('/customers', async (req, res) => {
         RETURNING *
       `,[customer_name, customer_phone || null]);
 
-      res.json(result.rows[0]);
+      res.json(result.rows);
 
   } catch (err) {
     res.status(400).json({

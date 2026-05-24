@@ -57,9 +57,9 @@ function App() {
       setCustomerName('');
       setCustomerPhone('');
 
-      setCustomerId(data.customer_id);
+      setCustomerId(data[0].customer_id);
       
-      await findCustomer(data.customer_id);
+      await findCustomer(data[0].customer_id);
 
       showMessage('新增客戶成功');
     } else {
@@ -152,7 +152,7 @@ function App() {
 
   return (
     <div className="app">
-      <h1>咖啡寄杯系統</h1>
+      <h1>咖啡寄杯系統v1.0</h1>
 
       <h2>新增客人</h2>
 
