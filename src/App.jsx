@@ -11,8 +11,11 @@ function App() {
   const [message, setMessage] = useState('');
   const [items, setItems] = useState([]);
   const [selectedItemId, setSelectedItemId] = useState('');
+  //const [successModal, setSuccessModal] = useState(false);
+  //const [newCustomer, setNewCustomer] = useState(null);
 
   const API = 'https://prepaid-coffee-system.onrender.com';
+  //const API = 'http://localhost:3000';
 
   const showMessage = (text) => {
     setMessage(text);
@@ -27,7 +30,7 @@ function App() {
   };
 
   useEffect(() => {
-  fetch(`${API}/ping`);
+    fetch(`${API}/ping`);
   }, []);
 
   useEffect(() => {
@@ -57,10 +60,12 @@ function App() {
       setCustomerName('');
       setCustomerPhone('');
 
-      setCustomerId(data[0].customer_id);
-      
-      await findCustomer(data[0].customer_id);
+      setCustomerId(data.customer_id);
 
+      await findCustomer(data.customer_id);
+
+      //etNewCustomer(data);
+      //setSuccessModal(true);
       showMessage('新增客戶成功');
     } else {
       showMessage('新增客戶失敗');
@@ -117,13 +122,13 @@ function App() {
         amount: Number(purchaseAmount),
       }),
     });
-
+    
     if (res.ok) {
-      showMessage('購買成功');
+      showMessage('加值成功');
 
       await loadBalances(customer.customer_id);
     } else {
-      showMessage('購買失敗');
+      showMessage('加值失敗');
     }
   };
 
@@ -271,6 +276,23 @@ function App() {
       )}
 
       {message && <p>{message}</p>}
+
+      {/*successModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h2>新增成功</h2>
+
+            <p>客戶編號：{newCustomer.customer_id}</p>
+
+            <button
+              onClick={() => setSuccessModal(false)}
+            >
+              關閉
+            </button>
+          </div>
+        </div>
+      )*/}
+
     </div>
   );
 }

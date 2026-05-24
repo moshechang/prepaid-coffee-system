@@ -47,7 +47,7 @@ app.get('/customers', async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ 
+    res.status(500).json({
       error: err.message
     });
   }
@@ -61,16 +61,16 @@ app.get('/customers/:id', async (req, res) => {
   try {
 
     //const pool = await sql.connect(dbConfig);
-   
+
     const result = await pool
       .query(`
         SELECT *
         FROM customers
         WHERE customer_id = $1
-      `,[id]);
+      `, [id]);
 
     res.json(result.rows);
-    
+
   } catch (err) {
 
     res.status(500).json({
@@ -104,7 +104,7 @@ app.get('/balances/:customerId', async (req, res) => {
         WHERE b.customer_id = $1
         AND b.remaining_cups > 0
         ORDER BY b.item_id ASC
-      `,[customerId]);
+      `, [customerId]);
 
     res.json(result.rows);
 
@@ -162,8 +162,8 @@ app.get('/items', async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ 
-      error: err.message 
+    res.status(500).json({
+      error: err.message
     });
   }
 });
@@ -182,8 +182,8 @@ app.get('/transactions', async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ 
-      error: err.message 
+    res.status(500).json({
+      error: err.message
     });
   }
 });
@@ -193,8 +193,8 @@ app.post('/purchase', async (req, res) => {
 
   const { customer_id, item_id, amount } = req.body;
 
-  if (amount<0) {
-  throw new Error('數量不能小於0');
+  if (amount < 0) {
+    throw new Error('數量不能小於0');
   }
 
   try {
@@ -207,7 +207,7 @@ app.post('/purchase', async (req, res) => {
         FROM balances
         WHERE customer_id = $1
           AND item_id = $2
-      `,[customer_id, item_id]);
+      `, [customer_id, item_id]);
 
     // 已存在 → UPDATE
     if (checkResult.rows.length > 0) {
@@ -217,7 +217,7 @@ app.post('/purchase', async (req, res) => {
           SET remaining_cups = remaining_cups + $3
           WHERE customer_id = $1
             AND item_id = $2
-        `,[customer_id, item_id, amount]);
+        `, [customer_id, item_id, amount]);
     }
 
     // 不存在 → INSERT
@@ -237,7 +237,7 @@ app.post('/purchase', async (req, res) => {
             $2,
             $3
           )
-        `,[customer_id, item_id, amount]);
+        `, [customer_id, item_id, amount]);
     }
 
     // 新增交易紀錄
@@ -257,16 +257,16 @@ app.post('/purchase', async (req, res) => {
           'purchase',
           NOW()
         )
-      `,[customer_id, item_id, amount]);
+      `, [customer_id, item_id, amount]);
 
     res.json({
-      message: '購買成功'
+      message: '加值成功'
     });
 
   } catch (err) {
     console.error(err);
     res.status(400).json({
-      error: '購買失敗',
+      error: '加值失敗',
       detail: err.message
     });
   }
@@ -295,11 +295,11 @@ app.post('/redeem', async (req, res) => {
         WHERE customer_id = $1
           AND item_id = $2
           AND remaining_cups >= 1
-      `,[customer_id, item_id]);
+      `, [customer_id, item_id]);
 
-      if (updateResult.rowCount === 0) {
+    if (updateResult.rowCount === 0) {
       throw new Error('沒有寄杯資料或杯數不足');
-      }
+    }
 
     // 新增交易紀錄
     //const request2 = new sql.Request(transaction);
@@ -319,8 +319,8 @@ app.post('/redeem', async (req, res) => {
           'redeem',
           NOW()
         )
-      `,[customer_id, item_id]);
-    
+      `, [customer_id, item_id]);
+
     //await transaction.commit();
     await client.query('COMMIT');
 
@@ -336,7 +336,8 @@ app.post('/redeem', async (req, res) => {
     console.error(err);
 
     res.status(400).json({
-      error: err.message
+      error: '兌換失敗',
+      detail: err.message
     });
 
   } finally {
@@ -351,16 +352,16 @@ app.post('/customers', async (req, res) => {
   const { customer_name, customer_phone } = req.body;
 
   if (customer_phone && !/^09\d{8}$/.test(customer_phone)) {
-  return res.status(400).json({
-    error: '電話格式錯誤'
-  });
+    return res.status(400).json({
+      error: '電話格式錯誤'
+    });
   }
 
   try {
 
     //const pool = await sql.connect(dbConfig);
 
-     await pool.query(`
+    const result = await pool.query(`
         INSERT INTO customers (
           customer_name,
           customer_phone
@@ -370,9 +371,9 @@ app.post('/customers', async (req, res) => {
           $2
         )
         RETURNING *
-      `,[customer_name, customer_phone || null]);
+      `, [customer_name, customer_phone || null]);
 
-      res.json(result.rows);
+    res.json(result.rows[0]);
 
   } catch (err) {
     res.status(400).json({
@@ -391,14 +392,14 @@ app.post('/items', async (req, res) => {
 
     //const pool = await sql.connect(dbConfig);
 
-     await pool.query(`
+    await pool.query(`
         INSERT INTO items (
           item_name
         )
         VALUES (
           $1
         )
-      `,[item_name]);
+      `, [item_name]);
 
     res.json({ message: '新增品項成功' });
 
