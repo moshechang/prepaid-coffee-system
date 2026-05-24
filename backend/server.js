@@ -61,28 +61,16 @@ app.get('/customers/:id', async (req, res) => {
   try {
 
     //const pool = await sql.connect(dbConfig);
-
-    if (id === 'latest') {
-
-    const result = await pool.query(`
-      SELECT *
-      FROM customers
-      ORDER BY customer_id DESC
-      LIMIT 1
-    `);
-    res.json(result.rows);
-    } 
-
-    else{
+   
     const result = await pool
       .query(`
         SELECT *
         FROM customers
         WHERE customer_id = $1
       `,[id]);
+      
     res.json(result.rows);
-    }
-
+    
   } catch (err) {
 
     res.status(500).json({
@@ -381,6 +369,7 @@ app.post('/customers', async (req, res) => {
           $1,
           $2
         )
+        RETURNING *
       `,[customer_name, customer_phone || null]);
 
     res.json({ message: '新增客人成功'});

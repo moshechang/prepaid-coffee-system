@@ -51,9 +51,17 @@ function App() {
       }),
     });
 
+    const data = await res.json();
+
     if (res.ok) {
       setCustomerName('');
       setCustomerPhone('');
+
+      setCustomer(data);
+
+      setCustomerId(data.customer_id);
+
+      await loadBalances(data.customer_id);
 
       showMessage('新增客戶成功');
     } else {
@@ -168,7 +176,8 @@ function App() {
         加入新的客人
       </button>
 
-      <h2>查詢客人（測試可輸入1）</h2>
+      <h2>查詢客人</h2>
+      <div>測試可輸入1，免費後端會休眠，需等待10秒</div>
 
       <input
         className="input"
@@ -191,55 +200,6 @@ function App() {
             <div>手機：{customer.customer_phone ?? '無手機'}</div>
           </div>
 
-          <h2>購買寄杯</h2>
-
-          <div className="item-grid">
-            {items.map((item) => (
-              <button
-                key={item.item_id}
-                onClick={() => setSelectedItemId(item.item_id)}
-                className={
-                  selectedItemId === item.item_id ? 'selected' : ''
-                }
-              >
-                {item.item_name}
-              </button>
-            ))}
-          </div>
-
-          <input
-            className="input"
-            placeholder="購買杯數"
-            type="number"
-            min="1"
-            value={purchaseAmount}
-            onChange={(e) => setPurchaseAmount(e.target.value)}
-          />
-
-          <div>
-            <button type="button" onClick={purchase}>
-              購買
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setPurchaseAmount(10);
-              }}
-            >
-              10 杯
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setPurchaseAmount(20);
-              }}
-            >
-              20 杯
-            </button>
-          </div>
-
           <h2>寄杯餘額</h2>
 
           {balances.length > 0 ? (
@@ -260,6 +220,55 @@ function App() {
           ) : (
             <div>沒寄杯</div>
           )}
+
+          <h2>增加寄杯</h2>
+
+          <div className="item-grid">
+            {items.map((item) => (
+              <button
+                key={item.item_id}
+                onClick={() => setSelectedItemId(item.item_id)}
+                className={
+                  selectedItemId === item.item_id ? 'selected' : ''
+                }
+              >
+                {item.item_name}
+              </button>
+            ))}
+          </div>
+
+          <input
+            className="input"
+            placeholder="增加杯數"
+            type="number"
+            min="1"
+            value={purchaseAmount}
+            onChange={(e) => setPurchaseAmount(e.target.value)}
+          />
+
+          <div>
+            <button type="button" onClick={purchase}>
+              加值
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setPurchaseAmount(10);
+              }}
+            >
+              10 杯
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setPurchaseAmount(20);
+              }}
+            >
+              20 杯
+            </button>
+          </div>
         </>
       )}
 
