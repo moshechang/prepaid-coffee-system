@@ -61,7 +61,7 @@ function App() {
 
       setCustomerId(data.customer_id);
 
-      await loadBalances(data.customer_id);
+      await findCustomer(data.customer_id);
 
       showMessage('新增客戶成功');
     } else {
